@@ -1,0 +1,68 @@
+//
+// !!! WARNING !!! AUTO-GENERATED FILE!
+// PLEASE DO NOT MODIFY IT AND USE "platformio.ini":
+// https://docs.platformio.org/page/projectconf/section_env_build.html#build-flags
+//
+{
+    "configurations": [
+        {
+            "name": "PlatformIO",
+            "includePath": [
+                "/home/pascal/data/.Documents/Private Documents/Developer/C++/Personal/Projects/Other Projects/Opa Uhr Neu/include",
+                "/home/pascal/data/.Documents/Private Documents/Developer/C++/Personal/Projects/Other Projects/Opa Uhr Neu/src",
+                "/home/pascal/data/.Documents/Private Documents/Developer/C++/Personal/Projects/Other Projects/Opa Uhr Neu/lib/DHT sensor library",
+                "/home/pascal/data/.Documents/Private Documents/Developer/C++/Personal/Projects/Other Projects/Opa Uhr Neu/.pio/libdeps/uno/JC_Button/src",
+                "/home/pascal/data/.Documents/Private Documents/Developer/C++/Personal/Projects/Other Projects/Opa Uhr Neu/.pio/libdeps/uno/Low-Power",
+                "/home/pascal/data/.Documents/Private Documents/Developer/C++/Personal/Projects/Other Projects/Opa Uhr Neu/.pio/libdeps/uno/LinkedList",
+                "/home/pascal/data/.Documents/Private Documents/Developer/C++/Personal/Projects/Other Projects/Opa Uhr Neu/.pio/libdeps/uno/ShiftRegister74HC595/src",
+                "/home/pascal/data/.Documents/Private Documents/Developer/C++/Personal/Projects/Other Projects/Opa Uhr Neu/.pio/libdeps/uno/RTC/src",
+                "/home/pascal/.platformio/packages/framework-arduino-avr/cores/arduino",
+                "/home/pascal/.platformio/packages/framework-arduino-avr/variants/standard",
+                "/home/pascal/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
+                "/home/pascal/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
+                "/home/pascal/.platformio/packages/framework-arduino-avr/libraries/HID/src",
+                "/home/pascal/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
+                "/home/pascal/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
+                ""
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                    "/home/pascal/data/.Documents/Private Documents/Developer/C++/Personal/Projects/Other Projects/Opa Uhr Neu/include",
+                    "/home/pascal/data/.Documents/Private Documents/Developer/C++/Personal/Projects/Other Projects/Opa Uhr Neu/src",
+                    "/home/pascal/data/.Documents/Private Documents/Developer/C++/Personal/Projects/Other Projects/Opa Uhr Neu/lib/DHT sensor library",
+                    "/home/pascal/data/.Documents/Private Documents/Developer/C++/Personal/Projects/Other Projects/Opa Uhr Neu/.pio/libdeps/uno/JC_Button/src",
+                    "/home/pascal/data/.Documents/Private Documents/Developer/C++/Personal/Projects/Other Projects/Opa Uhr Neu/.pio/libdeps/uno/Low-Power",
+                    "/home/pascal/data/.Documents/Private Documents/Developer/C++/Personal/Projects/Other Projects/Opa Uhr Neu/.pio/libdeps/uno/LinkedList",
+                    "/home/pascal/data/.Documents/Private Documents/Developer/C++/Personal/Projects/Other Projects/Opa Uhr Neu/.pio/libdeps/uno/ShiftRegister74HC595/src",
+                    "/home/pascal/data/.Documents/Private Documents/Developer/C++/Personal/Projects/Other Projects/Opa Uhr Neu/.pio/libdeps/uno/RTC/src",
+                    "/home/pascal/.platformio/packages/framework-arduino-avr/cores/arduino",
+                    "/home/pascal/.platformio/packages/framework-arduino-avr/variants/standard",
+                    "/home/pascal/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
+                    "/home/pascal/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
+                    "/home/pascal/.platformio/packages/framework-arduino-avr/libraries/HID/src",
+                    "/home/pascal/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
+                    "/home/pascal/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
+                    ""
+                ]
+            },
+            "defines": [
+                "PLATFORMIO=50203",
+                "ARDUINO_AVR_UNO",
+                "F_CPU=16000000L",
+                "ARDUINO_ARCH_AVR",
+                "ARDUINO=10808",
+                "__AVR_ATmega328P__",
+                ""
+            ],
+            "cStandard": "c11",
+            "cppStandard": "c++11",
+            "compilerPath": "/home/pascal/.platformio/packages/toolchain-atmelavr/bin/avr-gcc",
+            "compilerArgs": [
+                "-mmcu=atmega328p",
+                ""
+            ]
+        }
+    ],
+    "version": 4
+}
