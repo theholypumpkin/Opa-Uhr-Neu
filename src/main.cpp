@@ -6,7 +6,7 @@
 #include <RtcDS1302.h>
 
 #include <ShiftRegister74HC595.h>
-#include <LinkedList.h>
+//#include <LinkedList.h>
 #include <LowPower.h>
 #include <JC_Button.h>
 /*===============================================================================================*/
@@ -63,8 +63,12 @@ Button redTimeBtn(RED_TIME_BTN),
     blueHmdBtn(BLUE_HMD_BTN),
     blackVoltBtn(BLACK_VOLT_BTN);
 /*-   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -  */
-// Create a linked list on the Stack
-LinkedList<uint8_t> list;
+// Create a global array and pointing variable for the values to be shifted into the registers
+volatile uint8_t pinValues[NO_OF_SHIFT_REGISTERS];
+volatile uint8_t pinArrPtr = NO_OF_SHIFT_REGISTERS - 1;
+/*-   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -  */
+// create another global array to be able to set decimal points
+volatile uint8_t decimalPointArr[] = {6, 6};
 /*===============================================================================================*/
 enum statemachine_t
 {
@@ -83,79 +87,80 @@ void uint8_tToBitMask(uint8_t value)
     switch (value)
     {
     case 0:
-        list.add(B00001010); // 0                 0x0A
+        pinValues[pinArrPtr] = B00001010; // 0                 0x0A
         break;
     case 1:
-        list.add(B11101011); // 1                 0xEB
+        pinValues[pinArrPtr] = B11101011; // 1                 0xEB
         break;
     case 2:
-        list.add(B01000110); // 2                 0x46
+        pinValues[pinArrPtr] = B01000110; // 2                 0x46
         break;
     case 3:
-        list.add(B11000010); // 3                 0xC2
+        pinValues[pinArrPtr] = B11000010; // 3                 0xC2
         break;
     case 4:
-        list.add(B10100011); // 4                 0xA3
+        pinValues[pinArrPtr] = B10100011; // 4                 0xA3
         break;
     case 5:
-        list.add(B10010010); // 5                 0x92
+        pinValues[pinArrPtr] = B10010010; // 5                 0x92
         break;
     case 6:
-        list.add(B00010010); // 6                 0x12
+        pinValues[pinArrPtr] = B00010010; // 6                 0x12
         break;
     case 7:
-        list.add(B11001011); // 7                 0xCB
+        pinValues[pinArrPtr] = B11001011; // 7                 0xCB
         break;
     case 8:
-        list.add(B00000010); // 8                 0x02
+        pinValues[pinArrPtr] = B00000010; // 8                 0x02
         break;
     case 9:
-        list.add(B10000010); // 9                 0x82
+        pinValues[pinArrPtr] = B10000010; // 9                 0x82
         break;
-    case 42:                 // Asterix as a replacement for the Degree symbol ASCII
-        list.add(B10000111); // Degree            0x87
+    case 42: // Asterix as a replacement for the Degree symbol ASCII
+        pinValues[pinArrPtr] = B10000111; // Degree            0x87
         break;
-    case 45:                 // Minus Symbol ASCII
-        list.add(B11110111); // Minus Symbol      0xF7
+    case 45: // Minus Symbol ASCII
+        pinValues[pinArrPtr] = B11110111; // Minus Symbol      0xF7
         break;
-    case 47:                 // Slash Symbol ASCII
-        list.add(B01100111); // Slash Symbol      0x67
+    case 47: // Slash Symbol ASCII
+        pinValues[pinArrPtr] = B01100111; // Slash Symbol      0x67
         break;
-    case 67:                 //Capital C
-        list.add(B00011110); // C                 0x30
+    case 67: //Capital C
+        pinValues[pinArrPtr] = B00011110; // C                 0x30
         break;
-    case 69:                 // Capital E ASCII
-        list.add(B00010110); // E                 0x16
+    case 69: // Capital E ASCII
+        pinValues[pinArrPtr] = B00010110; // E                 0x16
         break;
-    case 70:                 // Capital F ASCII
-        list.add(B00010111); // F                 0x17
+    case 70: // Capital F ASCII
+        pinValues[pinArrPtr] = B00010111; // F                 0x17
         break;
-    case 111:                // lower case O ASCII
-        list.add(B01110010); // o                 0x72
+    case 111: // lower case O ASCII
+        pinValues[pinArrPtr] = B01110010; // o                 0x72
         break;
-    case 114:                // lower case R ASCII
-        list.add(B01110111); // r                 0x77
+    case 114: // lower case R ASCII
+        pinValues[pinArrPtr] = B01110111; // r                 0x77
         break;
-    case 116:                // Lower case T ASCII
-        list.add(B00110110); // t                 0x36
+    case 116: // Lower case T ASCII
+        pinValues[pinArrPtr] = B00110110; // t                 0x36
         break;
-    case 118:                // Upper Case V ASCII
-        list.add(B01111010); // v                 0x7A
+    case 118: // Upper Case V ASCII
+        pinValues[pinArrPtr] = B01111010; // vV                0x7A
         break;
-    default:                 //Turn Segment of
-        list.add(B11111111); //No symbol all HIGH 0xFF
+    default: //Turn Segment of
+        pinValues[pinArrPtr] = B11111111; //No symbol all HIGH 0xFF
     }
 }
 /*_______________________________________________________________________________________________*/
 
 void printError()
 {
-    uint8_t arr[6] = {'E', 'r', 'r', 'o', 'r'};
+    uint8_t arr[6] = {'E', 'r', 'r', 'o', 'r', 128};
 
-    list.clear(); //remove all current entries from the list
+    pinArrPtr = 5; //remove all current entries from the list
     for (int i = 0; i < 6; ++i)
     {
         uint8_tToBitMask(arr[i]);
+        pinArrPtr --;
     }
 }
 /*_______________________________________________________________________________________________*/
@@ -171,10 +176,12 @@ void getTimeBitmaskList(const RtcDateTime &dt)
     arr[4] = uint8_t(dt.Second() / 10); //Upper digit of the day
     arr[5] = uint8_t(dt.Second() % 10); //Lower digit of the day
 
-    list.clear(); //remove all current entries from the list
+    pinArrPtr = 5; //remove all current entries from the list
+
     for (int i = 0; i < 6; ++i)
-    {
+    {   
         uint8_tToBitMask(arr[i]);
+        pinArrPtr --;
     }
 }
 /*_______________________________________________________________________________________________*/
@@ -190,10 +197,13 @@ void getDateBitmaskList(const RtcDateTime &dt)
     arr[4] = uint8_t((dt.Year() - 2000) / 10); //Upper digit of short year (year-2000)/10
     arr[5] = uint8_t((dt.Year() - 2000) % 10); //Lower digit of short year
 
-    list.clear(); //remove all current entries from the list
+    decimalPointArr[0] = 4;
+    decimalPointArr[1] = 2;
+    pinArrPtr = 5; //remove all current entries from the list
     for (int i = 0; i < 6; ++i)
     {
         uint8_tToBitMask(arr[i]);
+        pinArrPtr --;
     }
 }
 /*_______________________________________________________________________________________________*/
@@ -210,19 +220,23 @@ void getBatVoltageBitmaskList()
     uint8_t arr[6];
 
     // returns the integer in arr[1:4] leaving
-    for (uint8_t i = 1; i < 5; ++i)
+    for (uint8_t i = 1; i < 4; ++i)
     {
         arr[i] = (uint8_t)bat_volt;
         bat_volt = (bat_volt - arr[i]) * 10; //Substract the rounded value and multipy by 10
     }
 
     arr[0] = 128; // this will be caugt by the default case and will disable the segment
-    arr[5] = 'V';
+    arr[4] = 128;
+    arr[5] = 'v';
 
-    list.clear(); //remove all current entries from the list
+    decimalPointArr[0] = 4;
+
+    pinArrPtr = 5; //remove all current entries from the list
     for (int i = 0; i < 6; ++i)
     {
         uint8_tToBitMask(arr[i]);
+        pinArrPtr --;
     }
 }
 /*_______________________________________________________________________________________________*/
@@ -257,10 +271,11 @@ void getDHTTemperatureBitmaskList()
             arr[4] = '*';
             arr[5] = 'C';
         }
-        list.clear(); //remove all current entries from the list
+        pinArrPtr = 5; //remove all current entries from the list
         for (int i = 0; i < 6; ++i)
         {
             uint8_tToBitMask(arr[i]);
+            pinArrPtr --;
         }
     }
 }
@@ -284,10 +299,11 @@ void getDHTHumidityBitmaskList()
         arr[4] = '/'; // percent sign part 2
         arr[5] = 'o'; // percent sign part 3
     }
-    list.clear(); //remove all current entries from the list
+    pinArrPtr = 5; //remove all current entries from the list
     for (int i = 0; i < 6; ++i)
     {
         uint8_tToBitMask(arr[i]);
+        pinArrPtr --;
     }
 }
 /*_______________________________________________________________________________________________*/
@@ -301,7 +317,6 @@ void updateButtonsAndSetState()
     blackVoltBtn.read();
 
     // changing the State depnding if a button was pressed or not.
-    DEBUG_PRINTLN("Updating Buttons");
     if (redTimeBtn.wasPressed())
         mode = TIME;
     else if (yellowDateBtn.wasPressed())
@@ -312,8 +327,6 @@ void updateButtonsAndSetState()
         mode = HUMIDITY;
     else if (blackVoltBtn.wasPressed())
         mode = VOLT;
-    DEBUG_PRINT("Mode: ");
-    DEBUG_PRINTLN(mode);
 }
 /*===============================================================================================*/
 
@@ -329,11 +342,11 @@ void setup()
     Rtc.Begin();
     /*-   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -  */
     // Start the 4 Buttons
-    redTimeBtn.begin();
-    yellowDateBtn.begin();
-    greenTempBtn.begin();
-    blueHmdBtn.begin();
-    blackVoltBtn.begin();
+    //redTimeBtn.begin();
+    //yellowDateBtn.begin();
+    //greenTempBtn.begin();
+    //blueHmdBtn.begin();
+    //blackVoltBtn.begin();
     /*-   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -  */
     pinMode(COLON_LEFT, OUTPUT);
     pinMode(COLON_RIGHT, OUTPUT);
@@ -409,8 +422,8 @@ void loop()
             digitalWrite(COLON_RIGHT, HIGH);
         }
     }
-    //DEBUGPRINT("statemachine_t mode: ");
-    //DEBUGPRINTLN(mode);
+    Serial.print("Mode: ");
+    Serial.println(mode);
     /*-   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -  */
     switch (mode)
     {
@@ -455,21 +468,19 @@ void loop()
         mode = TIME; // When something bad happend we just reset the mode to TIME.
         break;
     }
+    //getDateBitmaskList(now);
     /*-   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -  */
-
-    // Common Causes for invalidity: the battery on the device is low or even missing and the power
-    // line was disconnected
-
-    uint8_t pinValues[NO_OF_SHIFT_REGISTERS];
-
-    for (int i = 0; i < NO_OF_SHIFT_REGISTERS; ++i)
+    // mutate Pin Values, if we have set a specific location for a decimal point;
+    if((decimalPointArr[0] < 6))
     {
-        /* List is read FIFO
-         * if i = 0 than we remove the upper hour digit on 1 the lower, on 2 the upper minute etc.
-         * the list should be empty at the end. netherteless we still clear it later.
-        **/
-        //TODO implement a way to show the decimal point
-        pinValues[i] = list.remove(i); // shift() will remove and return the FIRST element
+        pinValues[decimalPointArr[0]] -= 2; // substracts 2 to set bit 2 to 0 instead of 1
+        decimalPointArr[0] = 6; // set the value back to 6
+    }
+    
+    if((decimalPointArr[1] < 6))
+    {
+        pinValues[decimalPointArr[1]] -= 2; // substracts 2 to set bit 2 to 0 instead of 1
+        decimalPointArr[1] = 6; // set the value back to 6
     }
     sr.setAll(pinValues);
 }
