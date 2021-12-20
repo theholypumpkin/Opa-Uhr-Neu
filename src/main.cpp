@@ -10,7 +10,7 @@
 #include <LowPower.h>
 #include <JC_Button.h>
 /*===============================================================================================*/
-#define DEBUG //TODO comment this line in final build
+// #define DEBUG //TODO comment this line in final build
 
 #ifdef DEBUG
 #define DEBUGPRINT(x) Serial.print(x)
@@ -24,16 +24,16 @@
 /*_______________________________________________________________________________________________*/
 #define NO_OF_SHIFT_REGISTERS 6
 #define SHIFT_REGISTER_DATA 2
-#define SHIFT_REGISTER_CLK 3 // BUG maybe clock is 3 and latch is 4
+#define SHIFT_REGISTER_CLK 3
 #define SHIFT_REGISTER_LATCH 4
 /*-   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -  */
-#define BATTERY_VOLTAGE_PIN A5 //TODO Change back to A7
+#define BATTERY_VOLTAGE_PIN A7
 /*-   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -  */
 #define DHTPIN 10
 #define DHTTYPE DHT11
 /*-   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -  */
-#define RTC_CLOCK 5
-#define RTC_DATA 6
+#define RTC_CLOCK 6
+#define RTC_DATA 5
 #define RTC_RESET 7
 /*-   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -  */
 #define COLON_RIGHT 8
@@ -215,7 +215,8 @@ void getBatVoltageBitmaskList()
      * 10 = System Volage 5V * 2 because the Voltage Divider divides the battery valtage by half.
      * 1023 = Analog Resoltion (2^10)-1 (10-Bits)
      */
-    float bat_volt = analogRead(BATTERY_VOLTAGE_PIN) * 10 / 1023;
+    float bat_volt = (float) analogRead(BATTERY_VOLTAGE_PIN) * 10.0 / 1023.0;
+    //Serial.println(bat_volt);
 
     uint8_t arr[6];
 
@@ -223,6 +224,7 @@ void getBatVoltageBitmaskList()
     for (uint8_t i = 1; i < 4; ++i)
     {
         arr[i] = (uint8_t)bat_volt;
+        //Serial.println(arr[i]);
         bat_volt = (bat_volt - arr[i]) * 10; //Substract the rounded value and multipy by 10
     }
 
@@ -318,15 +320,25 @@ void updateButtonsAndSetState()
 
     // changing the State depnding if a button was pressed or not.
     if (redTimeBtn.wasPressed())
+    {
         mode = TIME;
+    }
     else if (yellowDateBtn.wasPressed())
+    {
         mode = DATE;
+    }
     else if (greenTempBtn.wasPressed())
+    {
         mode = TEMPERATURE;
+    }
     else if (blueHmdBtn.wasPressed())
+    {
         mode = HUMIDITY;
+    }
     else if (blackVoltBtn.wasPressed())
+    {
         mode = VOLT;
+    }
 }
 /*===============================================================================================*/
 
@@ -342,11 +354,11 @@ void setup()
     Rtc.Begin();
     /*-   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -  */
     // Start the 4 Buttons
-    //redTimeBtn.begin();
-    //yellowDateBtn.begin();
-    //greenTempBtn.begin();
-    //blueHmdBtn.begin();
-    //blackVoltBtn.begin();
+    redTimeBtn.begin();
+    yellowDateBtn.begin();
+    greenTempBtn.begin();
+    blueHmdBtn.begin();
+    blackVoltBtn.begin();
     /*-   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -  */
     pinMode(COLON_LEFT, OUTPUT);
     pinMode(COLON_RIGHT, OUTPUT);
@@ -422,8 +434,8 @@ void loop()
             digitalWrite(COLON_RIGHT, HIGH);
         }
     }
-    Serial.print("Mode: ");
-    Serial.println(mode);
+    //Serial.print("Mode: ");
+    //Serial.println(mode);
     /*-   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -  */
     switch (mode)
     {
