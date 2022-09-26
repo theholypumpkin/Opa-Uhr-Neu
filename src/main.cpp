@@ -6,7 +6,6 @@
 #include <RtcDS1302.h>
 
 #include <ShiftRegister74HC595.h>
-//#include <LinkedList.h>
 #include <LowPower.h>
 #include <JC_Button.h>
 /*===============================================================================================*/
@@ -39,11 +38,11 @@
 #define COLON_RIGHT 8
 #define COLON_LEFT 9
 /*-   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -  */
-#define RED_TIME_BTN 14    //A0
-#define YELLOW_DATE_BTN 15 //A2
-#define GREEN_TEMP_BTN 16  //A1
-#define BLUE_HMD_BTN 17    //A3
-#define BLACK_VOLT_BTN 19  //A5
+#define RED_TIME_BTN 14    // A0
+#define YELLOW_DATE_BTN 15 // A2
+#define GREEN_TEMP_BTN 16  // A1
+#define BLUE_HMD_BTN 17    // A3
+#define BLACK_VOLT_BTN 19  // A5
 /*===============================================================================================*/
 
 ThreeWire myWire(RTC_DATA, RTC_CLOCK, RTC_RESET); // DAT, CLK, RST
@@ -81,7 +80,7 @@ enum statemachine_t
 
 statemachine_t mode = TIME;
 /*===============================================================================================*/
-//Parses numbers and character without implicit casting by using uint8_t
+// Parses numbers and character without implicit casting by using uint8_t
 void uint8_tToBitMask(uint8_t value)
 {
     switch (value)
@@ -116,38 +115,38 @@ void uint8_tToBitMask(uint8_t value)
     case 9:
         pinValues[pinArrPtr] = B10000010; // 9                 0x82
         break;
-    case 42: // Asterix as a replacement for the Degree symbol ASCII
+    case 42:                              // Asterix as a replacement for the Degree symbol ASCII
         pinValues[pinArrPtr] = B10000111; // Degree            0x87
         break;
-    case 45: // Minus Symbol ASCII
+    case 45:                              // Minus Symbol ASCII
         pinValues[pinArrPtr] = B11110111; // Minus Symbol      0xF7
         break;
-    case 47: // Slash Symbol ASCII
+    case 47:                              // Slash Symbol ASCII
         pinValues[pinArrPtr] = B01100111; // Slash Symbol      0x67
         break;
-    case 67: //Capital C
+    case 67:                              // Capital C
         pinValues[pinArrPtr] = B00011110; // C                 0x30
         break;
-    case 69: // Capital E ASCII
+    case 69:                              // Capital E ASCII
         pinValues[pinArrPtr] = B00010110; // E                 0x16
         break;
-    case 70: // Capital F ASCII
+    case 70:                              // Capital F ASCII
         pinValues[pinArrPtr] = B00010111; // F                 0x17
         break;
-    case 111: // lower case O ASCII
+    case 111:                             // lower case O ASCII
         pinValues[pinArrPtr] = B01110010; // o                 0x72
         break;
-    case 114: // lower case R ASCII
+    case 114:                             // lower case R ASCII
         pinValues[pinArrPtr] = B01110111; // r                 0x77
         break;
-    case 116: // Lower case T ASCII
+    case 116:                             // Lower case T ASCII
         pinValues[pinArrPtr] = B00110110; // t                 0x36
         break;
-    case 118: // Upper Case V ASCII
+    case 118:                             // Upper Case V ASCII
         pinValues[pinArrPtr] = B01111010; // vV                0x7A
         break;
-    default: //Turn Segment of
-        pinValues[pinArrPtr] = B11111111; //No symbol all HIGH 0xFF
+    default:                              // Turn Segment of
+        pinValues[pinArrPtr] = B11111111; // No symbol all HIGH 0xFF
     }
 }
 /*_______________________________________________________________________________________________*/
@@ -156,11 +155,11 @@ void printError()
 {
     uint8_t arr[6] = {'E', 'r', 'r', 'o', 'r', 128};
 
-    pinArrPtr = 5; //remove all current entries from the list
+    pinArrPtr = 5; // remove all current entries from the list
     for (int i = 0; i < 6; ++i)
     {
         uint8_tToBitMask(arr[i]);
-        pinArrPtr --;
+        pinArrPtr--;
     }
 }
 /*_______________________________________________________________________________________________*/
@@ -169,19 +168,19 @@ void getTimeBitmaskList(const RtcDateTime &dt)
 {
     uint8_t arr[6];
 
-    arr[0] = uint8_t(dt.Hour() / 10);   //Upper digit of the day
-    arr[1] = uint8_t(dt.Hour() % 10);   //Lower digit of the day
-    arr[2] = uint8_t(dt.Minute() / 10); //Upper digit of the day
-    arr[3] = uint8_t(dt.Minute() % 10); //Lower digit of the day
-    arr[4] = uint8_t(dt.Second() / 10); //Upper digit of the day
-    arr[5] = uint8_t(dt.Second() % 10); //Lower digit of the day
+    arr[0] = uint8_t(dt.Hour() / 10);   // Upper digit of the day
+    arr[1] = uint8_t(dt.Hour() % 10);   // Lower digit of the day
+    arr[2] = uint8_t(dt.Minute() / 10); // Upper digit of the day
+    arr[3] = uint8_t(dt.Minute() % 10); // Lower digit of the day
+    arr[4] = uint8_t(dt.Second() / 10); // Upper digit of the day
+    arr[5] = uint8_t(dt.Second() % 10); // Lower digit of the day
 
-    pinArrPtr = 5; //remove all current entries from the list
+    pinArrPtr = 5; // remove all current entries from the list
 
     for (int i = 0; i < 6; ++i)
-    {   
+    {
         uint8_tToBitMask(arr[i]);
-        pinArrPtr --;
+        pinArrPtr--;
     }
 }
 /*_______________________________________________________________________________________________*/
@@ -190,20 +189,20 @@ void getDateBitmaskList(const RtcDateTime &dt)
 {
     uint8_t arr[6];
 
-    arr[0] = uint8_t(dt.Day() / 10);           //Upper digit of the day
-    arr[1] = uint8_t(dt.Day() % 10);           //Lower digit of the day
-    arr[2] = uint8_t(dt.Month() / 10);         //Upper digit of the month
-    arr[3] = uint8_t(dt.Month() % 10);         //Lower digit of the month
-    arr[4] = uint8_t((dt.Year() - 2000) / 10); //Upper digit of short year (year-2000)/10
-    arr[5] = uint8_t((dt.Year() - 2000) % 10); //Lower digit of short year
+    arr[0] = uint8_t(dt.Day() / 10);           // Upper digit of the day
+    arr[1] = uint8_t(dt.Day() % 10);           // Lower digit of the day
+    arr[2] = uint8_t(dt.Month() / 10);         // Upper digit of the month
+    arr[3] = uint8_t(dt.Month() % 10);         // Lower digit of the month
+    arr[4] = uint8_t((dt.Year() - 2000) / 10); // Upper digit of short year (year-2000)/10
+    arr[5] = uint8_t((dt.Year() - 2000) % 10); // Lower digit of short year
 
     decimalPointArr[0] = 4;
     decimalPointArr[1] = 2;
-    pinArrPtr = 5; //remove all current entries from the list
+    pinArrPtr = 5; // remove all current entries from the list
     for (int i = 0; i < 6; ++i)
     {
         uint8_tToBitMask(arr[i]);
-        pinArrPtr --;
+        pinArrPtr--;
     }
 }
 /*_______________________________________________________________________________________________*/
@@ -215,8 +214,8 @@ void getBatVoltageBitmaskList()
      * 10 = System Volage 5V * 2 because the Voltage Divider divides the battery valtage by half.
      * 1023 = Analog Resoltion (2^10)-1 (10-Bits)
      */
-    float bat_volt = (float) analogRead(BATTERY_VOLTAGE_PIN) * 10.0 / 1023.0;
-    //Serial.println(bat_volt);
+    float bat_volt = (float)analogRead(BATTERY_VOLTAGE_PIN) * 10.0 / 1023.0;
+    // Serial.println(bat_volt);
 
     uint8_t arr[6];
 
@@ -224,8 +223,8 @@ void getBatVoltageBitmaskList()
     for (uint8_t i = 1; i < 4; ++i)
     {
         arr[i] = (uint8_t)bat_volt;
-        //Serial.println(arr[i]);
-        bat_volt = (bat_volt - arr[i]) * 10; //Substract the rounded value and multipy by 10
+        // Serial.println(arr[i]);
+        bat_volt = (bat_volt - arr[i]) * 10; // Substract the rounded value and multipy by 10
     }
 
     arr[0] = 128; // this will be caugt by the default case and will disable the segment
@@ -234,11 +233,11 @@ void getBatVoltageBitmaskList()
 
     decimalPointArr[0] = 4;
 
-    pinArrPtr = 5; //remove all current entries from the list
+    pinArrPtr = 5; // remove all current entries from the list
     for (int i = 0; i < 6; ++i)
     {
         uint8_tToBitMask(arr[i]);
-        pinArrPtr --;
+        pinArrPtr--;
     }
 }
 /*_______________________________________________________________________________________________*/
@@ -273,11 +272,11 @@ void getDHTTemperatureBitmaskList()
             arr[4] = '*';
             arr[5] = 'C';
         }
-        pinArrPtr = 5; //remove all current entries from the list
+        pinArrPtr = 5; // remove all current entries from the list
         for (int i = 0; i < 6; ++i)
         {
             uint8_tToBitMask(arr[i]);
-            pinArrPtr --;
+            pinArrPtr--;
         }
     }
 }
@@ -301,11 +300,11 @@ void getDHTHumidityBitmaskList()
         arr[4] = '/'; // percent sign part 2
         arr[5] = 'o'; // percent sign part 3
     }
-    pinArrPtr = 5; //remove all current entries from the list
+    pinArrPtr = 5; // remove all current entries from the list
     for (int i = 0; i < 6; ++i)
     {
         uint8_tToBitMask(arr[i]);
-        pinArrPtr --;
+        pinArrPtr--;
     }
 }
 /*_______________________________________________________________________________________________*/
@@ -344,7 +343,7 @@ void updateButtonsAndSetState()
 
 void setup()
 {
-    //Disabling all Sengments
+    // Disabling all Sengments
     sr.setAllHigh();
     /*-   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -  */
     // Start the DHT Temperature, Humidity Sensor
@@ -379,7 +378,7 @@ void setup()
         /* Common Causes:
          *    1) first time you ran and the device wasn't running yet
          *    2) the battery on the device is low or even missing
-        **/
+         **/
         printError();
 #ifdef DEBUG
         Rtc.SetDateTime(compiled);
@@ -404,7 +403,7 @@ void setup()
 void loop()
 {
     RtcDateTime now = Rtc.GetDateTime();
-    /* Serial get compleyly mess up with lowpower but well whatever. Also we frequently jump a a 
+    /* Serial get compleyly mess up with lowpower but well whatever. Also we frequently jump a a
      * number but it only seconds
      * and likly caused by the overhead of serial.
      */
@@ -412,7 +411,7 @@ void loop()
     for (uint8_t i = 0; i < 4; i++)
     {
 #ifdef DEBUG
-        //DEBUGPRINTLN("Dealying for 250MS");
+        // DEBUGPRINTLN("Dealying for 250MS");
         delay(250); // Just delay fro 250MS
 #else
         // Else actually sleep
@@ -434,8 +433,8 @@ void loop()
             digitalWrite(COLON_RIGHT, HIGH);
         }
     }
-    //Serial.print("Mode: ");
-    //Serial.println(mode);
+    // Serial.print("Mode: ");
+    // Serial.println(mode);
     /*-   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -  */
     switch (mode)
     {
@@ -480,19 +479,19 @@ void loop()
         mode = TIME; // When something bad happend we just reset the mode to TIME.
         break;
     }
-    //getDateBitmaskList(now);
+    // getDateBitmaskList(now);
     /*-   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -  */
     // mutate Pin Values, if we have set a specific location for a decimal point;
-    if((decimalPointArr[0] < 6))
+    if ((decimalPointArr[0] < 6))
     {
         pinValues[decimalPointArr[0]] -= 2; // substracts 2 to set bit 2 to 0 instead of 1
-        decimalPointArr[0] = 6; // set the value back to 6
+        decimalPointArr[0] = 6;             // set the value back to 6
     }
-    
-    if((decimalPointArr[1] < 6))
+
+    if ((decimalPointArr[1] < 6))
     {
         pinValues[decimalPointArr[1]] -= 2; // substracts 2 to set bit 2 to 0 instead of 1
-        decimalPointArr[1] = 6; // set the value back to 6
+        decimalPointArr[1] = 6;             // set the value back to 6
     }
     sr.setAll(pinValues);
 }
