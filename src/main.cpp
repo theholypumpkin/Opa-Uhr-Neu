@@ -211,10 +211,10 @@ void getBatVoltageBitmaskList()
 {
     /* Calculate the battery voltage as an 4 Digit Integer with "hidden" decimal sign.
      * The remaining digets are cut of.
-     * 10 = System Volage 5V * 2 because the Voltage Divider divides the battery valtage by half.
+     * 12 = 1.5V*8 Batteries because the Voltage Divider divides the battery valtage by half.
      * 1023 = Analog Resoltion (2^10)-1 (10-Bits)
      */
-    float bat_volt = (float)analogRead(BATTERY_VOLTAGE_PIN) * 10.0 / 1023.0;
+    float bat_volt = (float)analogRead(BATTERY_VOLTAGE_PIN) * 12.0 / 1023.0;
     // Serial.println(bat_volt);
 
     uint8_t arr[6];
