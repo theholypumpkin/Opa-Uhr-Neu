@@ -6,7 +6,9 @@
 #include <RtcDS1302.h>
 
 #include <ShiftRegister74HC595.h>
+#ifndef ARDUINO_AVR_NANO_EVERY 
 #include <LowPower.h>
+#endif
 #include <JC_Button.h>
 /*===============================================================================================*/
 // #define DEBUG //TODO comment this line in final build
@@ -413,6 +415,8 @@ void loop()
 #ifdef DEBUG
         // DEBUGPRINTLN("Dealying for 250MS");
         delay(250); // Just delay fro 250MS
+#elif ARDUINO_AVR_NANO_EVERY
+        delay(250);
 #else
         // Else actually sleep
         LowPower.powerDown(SLEEP_250MS, ADC_OFF, BOD_OFF);
